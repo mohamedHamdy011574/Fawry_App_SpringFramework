@@ -1,0 +1,191 @@
+//بسم الله الرحمن الرحيم
+	/*
+	 * Important Note:
+	 * 
+	 * for specific user:
+	 * 		Admin can show ==> payment Transactions       ---> all transactions either credit card or wallet 
+	 * 							,Added to wallet  transaction    ---> added to wallet transactions only
+	 * 							 ,refund transaction (accept or reject)   --> transaction in refund list
+	 * 
+	 * 
+	 * But a balance in the Wallet first to be able to pay with credit and wallet without
+	 * facing "wallet balance not enough" 			
+	 * 
+	//sign up
+	 * you can sign up with "password >= 4 length, a valid email example@example.com, no restriction in userName
+	 * if the email is already exist the signUp will be failed
+	{
+    "userName":"fdfd",
+    "password":"123d4567",
+    "email":"mhooh@h.com"
+	}
+	
+		{
+    "userName":"fdfd",
+    "password":"123d4567",
+    "email":"mhopoh@h.com"
+	}
+---------------------------------------------------------------------------------
+	//login
+	 * 
+	 * Admin can login directly with Admin@admin.com , password = 0000
+	 * 
+	 * if you try to log in again with the same email you log in before
+	 * it show a return message  "You already loged in try to login with other user"
+	 * 
+	 * if the email or password are wrong login will be failed
+	{
+    "password":"123d4567",
+    "email":"mhooh@h.com"
+	}
+---------------------------------------------------------------------------------
+   // Home page options insert in body
+    {
+    "ServiceNumber": null,                    // specific the service to enter it menu
+    
+    "ServiceProviderNumber": null,            // specific service Provider that will used in recharge
+    
+    "CreditCardOrWallet" :null,               // choose creditCard  or  wallet payment 
+    
+    "amoubtToPay":null,                       // amount that will be payed in one process
+    
+    "PhoneNumber" : null,                     // phone number used in mobile recharge 
+    
+    "LandLineNumber" : null,                  // landLineNumber used in Internet(WIFI) recharge
+    
+    "LandLineNumber2" : null,                 // landLineNumebr2 used in LandLine recipt  
+    
+    "transactionToRefund" :-1,		      // the id of the transaction that the user select to refund
+    
+    "ServiceToSearch":null,                   // the input the user enter to servh for in the services
+    
+    "amountAddedToWallet" :null               // the amount of money that added to the wallet using credit card
+    }
+--------------------------------------------------------------------------------
+    // show all service providers under service 1 
+     {
+    "ServiceNumber": 1
+    }
+    
+    // select a specific service provider under service number 1 (1,2,3 or 4) is accepted 
+     * return a message say that you must enter all payment information (phone number,amount, payment method)
+    {
+    "ServiceNumber": 1, "ServiceProviderNumber":3
+    }
+    
+    // in service number 1 , choose service provider number 3 , and the payment method number 1 
+     * [1. credit card and 2. wallet payment (cash payment under it also)]
+     * return a message say that you must enter all payment information (phone number,amount, payment method)
+    {
+    "ServiceNumber": 1, "ServiceProviderNumber":3, "CreditCardOrWallet" :2
+    }
+	
+	// the full information needed to complete mobile recharge (any messing information will return 
+	 * the same message that say you must enter all payment information as we say in the previous explanation   
+		{
+	    "ServiceNumber": 1, "ServiceProviderNumber":3, "CreditCardOrWallet" :2,
+	    "amoubtToPay":350,"PhoneNumber" : 12345678
+	    }
+
+	Notes:
+		- YOU CAN find the name of each selection and its data type in class "UserSelections"
+		- take care that ( 1. {"key1" : ,"key2" : "1" } give error because 'key1' not take value
+								you can put "key1" : null its okay with any data type
+								you can put "key1" : -1 or 0 if its 'integer'
+								you can put "key1" : "" if its 'string' 
+		- if "key1" is string but carry "123..." or any integers we can use 
+			"key1" : 123 -  "key1" : "123" 
+			booth are okay
+		
+		- if wallet balance < amountToPay , it return that wallet is not enough
+		- creditCard is handled here as a simulation with every credit card payment, money is 10000
+		  credit id must be a valid credit card number so  i put it in code to decreasing the load
+		  in each input 
+----------------------------------------------------------------------------------------------
+	// recharge Internet by "200" as default value to be recharged
+	 * look like you are on a specific plan with the internet service provider and this plan 
+	 * is 200 LE for 200 GB as an example
+    {
+    "ServiceNumber": "2", "ServiceProviderNumber": 1, "CreditCardOrWallet" :2,
+    "LandLineNumber" : "+20123456"
+    }
+    
+    // example here even we put "amountToPay" = 350 , the amount that will be payed is still 200
+    {
+    "ServiceNumber": "2", "ServiceProviderNumber": 1, "CreditCardOrWallet" :2,
+    "amoubtToPay":350,"LandLineNumber" : "+20123456"
+    }
+    
+    Note:
+    	- as we see here its the same steps we discuss in mobile recharge and the same algorithm is used
+    	- only the one difference that even if you change "amountToPay" : 123 or any number the number that
+    	  will consume from wallet or credit card is 200 
+----------------------------------------------------------------------------------------------    
+    //LandLineRecipt
+     * again here we make the same steps but 
+     * ++++ important ++++ the variable "serviceProvider" is created to choose 
+     * [1. Quarter recipt (300.0),	2. monthly recipt(150.0) ] and these amount to changes by chage
+     * "amountToPay" variable
+     * 
+    {
+    "ServiceNumber": 3, "ServiceProviderNumber":2, "CreditCardOrWallet" :2,
+	"LandLineNumber2" : "+2012345678"
+    }
+    
+     // example here even we put "amountToPay" = 350 , the amount that will be payed
+     * is still  150 or 300, depend on "ServiceProviderNumber" = ? , 
+    {
+    "ServiceNumber": "3", "ServiceProviderNumber": 1, "CreditCardOrWallet" :2,
+    "amoubtToPay":350,"LandLineNumber2" : "+20123456"
+    }
+-----------------------------------------------------------------------------------------------
+    //Donate for organization "you can choose where to donate"
+     * again the same steps and here we can use "amountToPay" normaly and it will be the real amount 
+     * that will be payed
+     * ++++ important ++++ the variable "serviceProvider" is created to choose between thedifferent Organization 
+    {
+    "ServiceNumber": 4, "ServiceProviderNumber":1, "CreditCardOrWallet" :1,
+    "amoubtToPay":100
+    }
+----------------------------------------------------------------------------------------------     
+     //show wallet balance
+    {
+    "ServiceNumber": "5"
+    }
+    
+     //add an amount to wallet
+	{
+    "ServiceNumber": "5", "amountAddedToWallet" :100
+    }
+---------------------------------------------------------------------------------------------
+    // return all the services that are started with "lan" , ignore the lower or upper case 
+     * it will works on the both 
+    {
+    "ServiceNumber": "6", "ServiceToSearch":"s"
+    }
+---------------------------------------------------------------------------------------------
+	// ask for refund
+	 * and return message "transaction with id 41741 is now in refund list"
+	 * if we try to add a transaction that is already in the refund list it will 
+	 * return message "Transaction is already  in refund list "
+    {
+    "ServiceNumber": "7", "transactionToRefund":"41741"
+    }
+    
+    Note:
+    	- when the transaction added to the refund lest its "status" will change to "Waiting for refund"
+---------------------------------------------------------------------------------------------
+ 	// show all transactions
+  	{
+    "ServiceNumber": "8"
+    }
+    
+    
+    
+    
+*/
+    
+    
+  
+    
+}

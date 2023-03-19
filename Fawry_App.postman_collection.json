@@ -1,0 +1,1621 @@
+{
+	"info": {
+		"_postman_id": "292edd04-253f-467e-816e-ea716bd96aa0",
+		"name": "Fawry_App",
+		"description": "package FCI_Advanced_Software_Engineering.Fawry_App.API_Controllers;\n\npublic class MyInterface {\n\n\t//بسم الله الرحمن الرحيم\n\t/*\n\t * Important Note:\n\t * \n\t * for specific user:\n\t * \t\tAdmin can show ==> payment Transactions       ---> all transactions either credit card or wallet \n\t * \t\t\t\t\t\t\t,Added to wallet  transaction    ---> added to wallet transactions only\n\t * \t\t\t\t\t\t\t ,refund transaction (accept or reject)   --> transaction in refund list\n\t * \n\t * \n\t * But a balance in the Wallet first to be able to peay with credit and wallet without\n\t * facing \"wallet balance not enough\" \t\t\t\n\t * \n\t//sign up\n\t * you can sign up with \"password >= 4 length, a valid email example@example.com, no restriction in userName\n\t * if the email is already exist the signUp will be failed\n\t{\n    \"userName\":\"fdfd\",\n    \"password\":\"123d4567\",\n    \"email\":\"mhooh@h.com\"\n\t}\n---------------------------------------------------------------------------------\n\t//login\n\t * \n\t * Admin can login directly with Admin@admin.com , password = 0000\n\t * \n\t * if you try to log in again with the same email you log in before\n\t * it show a return message  \"You already loged in try to login with other user\"\n\t * \n\t * if the email or password are wrong login will be failed\n\t{\n    \"password\":\"123d4567\",\n    \"email\":\"mhooh@h.com\"\n\t}\n---------------------------------------------------------------------------------\n\t// Home page options insert in body\n\t{\n    \"ServiceNumber\": null,                    // specific the service to enter it menu\n    \n    \"ServiceProviderNumber\": null,            // specific service Provider that will used in recharge\n    \n    \"CreditCardOrWallet\" :null,               // choose creditCard  or  wallet payment \n    \n    \"amoubtToPay\":null,                       // amount that will be payed in one process\n    \n    \"PhoneNumber\" : null,                     // phone number used in mobile recharge \n    \n    \"LandLineNumber\" : null,                  // landLineNumber used in Internet(WIFI) recharge\n    \n    \"LandLineNumber2\" : null,                 // landLineNumebr2 used in LandLine recipt  \n    \n    \"transactionToRefund\" :-1,\t\t\t\t  // the id of the transaction that the user select to refund\n    \n    \"ServiceToSearch\":null,                   // the input the user enter to servh for in the services\n    \n    \"amountAddedToWallet\" :null               // the amount of money that added to the wallet using credit card\n\t}\n--------------------------------------------------------------------------------\n\t// show all service providers under service 1 \n\t{\n    \"ServiceNumber\": 1\n    }\n    \n    // select a specific service provider under service number 1 (1,2,3 or 4) is accepted \n     * return a message say that you must enter all payment information (phone number,amount, payment method)\n\t{\n    \"ServiceNumber\": 1, \"ServiceProviderNumber\":3\n    }\n    \n    // in service number 1 , choose service provider number 3 , and the payment method number 1 \n     * [1. credit card and 2. wallet payment (cash payment under it also)]\n     * return a message say that you must enter all payment information (phone number,amount, payment method)\n\t{\n    \"ServiceNumber\": 1, \"ServiceProviderNumber\":3, \"CreditCardOrWallet\" :2\n    }\n\t\n\t// the full information needed to complete mobile recharge (any messing information will return \n\t * the same message that say you must enter all payment information as we say in the previous explanation   \n\t\t{\n\t    \"ServiceNumber\": 1, \"ServiceProviderNumber\":3, \"CreditCardOrWallet\" :2,\n\t    \"amoubtToPay\":350,\"PhoneNumber\" : 12345678\n\t    }\n\n\tNotes:\n\t\t- YOU CAN find the name of each selection and its data type in class \"UserSelections\"\n\t\t- take care that ( 1. {\"key1\" : ,\"key2\" : \"1\" } give error because 'key1' not take value\n\t\t\t\t\t\t\t\tyou can put \"key1\" : null its okay with any data type\n\t\t\t\t\t\t\t\tyou can put \"key1\" : -1 or 0 if its 'integer'\n\t\t\t\t\t\t\t\tyou can put \"key1\" : \"\" if its 'string' \n\t\t- if \"key1\" is string but carry \"123...\" or any integers we can use \n\t\t\t\"key1\" : 123 -  \"key1\" : \"123\" \n\t\t\tbooth are okay\n\t\t\n\t\t- if wallet balance < amountToPay , it return that wallet is not enough\n\t\t- creditCard is handled here as a simulation with every credit card payment, money is 10000\n\t\t  credit id must be a valid credit card number so  i put it in code to decreasing the load\n\t\t  in each input \n----------------------------------------------------------------------------------------------\n\t// recharge Internet by \"200\" as default value to be recharged\n\t * look like you are on a specific plan with the internet service provider and this plan \n\t * is 200 LE for 200 GB as an example\n\t{\n    \"ServiceNumber\": \"2\", \"ServiceProviderNumber\": 1, \"CreditCardOrWallet\" :2,\n    \"LandLineNumber\" : \"+20123456\"\n    }\n    \n    // example here even we put \"amountToPay\" = 350 , the amount that will be payed is still 200\n    {\n    \"ServiceNumber\": \"2\", \"ServiceProviderNumber\": 1, \"CreditCardOrWallet\" :2,\n    \"amoubtToPay\":350,\"LandLineNumber\" : \"+20123456\"\n    }\n    \n    Note:\n    \t- as we see here its the same steps we discuss in mobile recharge and the same algorithm is used\n    \t- only the one difference that even if you change \"amountToPay\" : 123 or any number the number that\n    \t  will consume from wallet or credit card is 200 \n----------------------------------------------------------------------------------------------    \n    //LandLineRecipt\n     * again here we make the same steps but \n     * ++++ important ++++ the variable \"serviceProvider\" is created to choose \n     * [1. Quarter recipt (300.0),\t2. monthly recipt(150.0) ] and these amount to changes by chage\n     * \"amountToPay\" variable\n     * \n    {\n    \"ServiceNumber\": 3, \"ServiceProviderNumber\":2, \"CreditCardOrWallet\" :2,\n\t\"LandLineNumber2\" : \"+2012345678\"\n    }\n    \n     // example here even we put \"amountToPay\" = 350 , the amount that will be payed\n     * is still  150 or 300, depend on \"ServiceProviderNumber\" = ? , \n    {\n    \"ServiceNumber\": \"3\", \"ServiceProviderNumber\": 1, \"CreditCardOrWallet\" :2,\n    \"amoubtToPay\":350,\"LandLineNumber2\" : \"+20123456\"\n    }\n-----------------------------------------------------------------------------------------------\n    //Donate for organization \"you can choose where to donate\"\n     * again the same steps and here we can use \"amountToPay\" normaly and it will be the real amount \n     * that will be payed\n     * ++++ important ++++ the variable \"serviceProvider\" is created to choose between thedifferent Organization \n    {\n    \"ServiceNumber\": 4, \"ServiceProviderNumber\":1, \"CreditCardOrWallet\" :1,\n    \"amoubtToPay\":100\n    }\n----------------------------------------------------------------------------------------------     \n     //show wallet balance\n    {\n    \"ServiceNumber\": \"5\"\n    }\n    \n     //add an amount to wallet\n\t{\n    \"ServiceNumber\": \"5\", \"amountAddedToWallet\" :100\n    }\n---------------------------------------------------------------------------------------------\n    // return all the services that are started with \"lan\" , ignore the lower or upper case \n     * it will works on the both \n    {\n    \"ServiceNumber\": \"6\", \"ServiceToSearch\":\"s\"\n    }\n---------------------------------------------------------------------------------------------\n\t// ask for refund\n\t * and return message \"transaction with id 41741 is now in refund list\"\n\t * if we try to add a transaction that is already in the refund list it will \n\t * return message \"Transaction is already  in refund list \"\n    {\n    \"ServiceNumber\": \"7\", \"transactionToRefund\":\"41741\"\n    }\n    \n    Note:\n    \t- when the transaction added to the refund lest its \"status\" will change to \"Waiting for refund\"\n---------------------------------------------------------------------------------------------\n \t// show all transactions\n  \t{\n    \"ServiceNumber\": \"8\"\n    }\n    \n    \n    \n    \n*/\n    \n    \n  \n    \n}",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User Model",
+			"item": [
+				{
+					"name": "Sign Up and Log in for User",
+					"item": [
+						{
+							"name": "User SignUp",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"userName\":\"mohamed\",\r\n    \"password\":\"123456\",\r\n    \"email\":\"mhamed@gmail.com\"\r\n\t}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/SignUp",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"SignUp"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Login",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"password\":\"123456\",\r\n    \"email\":\"mhamed@gmail.com\"\r\n\t}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Home page and main menu",
+					"item": [
+						{
+							"name": "Main menu",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Mobile recharge menu",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": 1\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Internet Payment  menu",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": 2\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Landline reciept menu",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": 3\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Donations menu",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": 4\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "User Wallet Balance",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": 5\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search for service",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": 6\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Ask for refund",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": 7\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Show all transactions",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": 8\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Pay for a service",
+					"item": [
+						{
+							"name": "Recharge a mobile with credit card",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t\t{\r\n\t    \"ServiceNumber\": 1, \"ServiceProviderNumber\":3, \"CreditCardOrWallet\" :1,\r\n\t    \"amoubtToPay\":350,\"PhoneNumber\" : 12345678\r\n\t    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Recharge with sale 100 LE",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "31"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 08:46:54 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "250.0 LE is payid for: Vodafone"
+								}
+							]
+						},
+						{
+							"name": "Add amount of money in wallet",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": \"5\", \"amountAddedToWallet\" :200\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "First adding in wallet",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "43"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 07:52:43 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "added Balance: 100.0, Wallet Balance: 100.0"
+								},
+								{
+									"name": "Second adding in wallet",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "43"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 08:13:15 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "added Balance: 100.0, Wallet Balance: 200.0"
+								}
+							]
+						},
+						{
+							"name": "Recharge Mobile with wallet",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\t    \"ServiceNumber\": 1, \"ServiceProviderNumber\":3, \"CreditCardOrWallet\" :2,\r\n\t    \"amoubtToPay\":100,\"PhoneNumber\" : 12345678\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Recharge Mobile with wallet with discount = 20",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n\t    \"ServiceNumber\": 1, \"ServiceProviderNumber\":3, \"CreditCardOrWallet\" :2,\r\n\t    \"amoubtToPay\":100,\"PhoneNumber\" : 12345678\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "30"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 17:27:57 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "80.0 LE is payid for: Vodafone"
+								}
+							]
+						},
+						{
+							"name": "Rechare an intenet with wallet",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\t{\r\n    \"ServiceNumber\": \"2\", \"ServiceProviderNumber\": 1, \"CreditCardOrWallet\" :2,\r\n    \"LandLineNumber\" : \"+20123456\"\r\n    }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "No Balance in wallet",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "25"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 08:09:56 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "Wallet Balance not enough"
+								},
+								{
+									"name": "After adding 200 le in wallet",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "50"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 08:14:05 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "200.0 LE (from 200) Internet is payid for: Etislat"
+								}
+							]
+						},
+						{
+							"name": "Recharge an intenert (WIFI) with credit card",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ServiceNumber\": \"2\", \"ServiceProviderNumber\": 1, \"CreditCardOrWallet\" :1,\r\n    \"LandLineNumber\" : \"+20123456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Validation on the input",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "80"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 08:08:10 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "Choose the payment method and enter the Landline number to complete the recharge"
+								}
+							]
+						},
+						{
+							"name": "LandLine Reciept payment with credit card",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ServiceNumber\": \"3\", \"ServiceProviderNumber\": 1, \"CreditCardOrWallet\" :\"\",\r\n    \"LandLineNumber2\" : \"+20123456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "LandLine Reciept payment (300 reciept)",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "39"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 08:11:26 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "300.0 LE is payid ,discount equal = 0.0"
+								},
+								{
+									"name": "LandLine Reciept payment with credit card you should choose payment number 1 or 2 only",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"ServiceNumber\": \"3\", \"ServiceProviderNumber\": 1, \"CreditCardOrWallet\" :\"\",\r\n    \"LandLineNumber2\" : \"+20123456\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "71"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 17:40:32 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "Enter  1 for credit Payment and 2 for wallet Payment , no other numbers"
+								}
+							]
+						},
+						{
+							"name": "Donation payment",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ServiceNumber\": 4, \"ServiceProviderNumber\":1, \"CreditCardOrWallet\" :1,\r\n    \"amoubtToPay\":100\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Non payment services",
+					"item": [
+						{
+							"name": "Search for all services start with ('s')",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ServiceNumber\": \"6\", \"ServiceToSearch\":\"s\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Show all transactions done untill now",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ServiceNumber\": \"7\", \"transactionToRefund\":\"41741\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Ask for refund by id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": " {\r\n    \"ServiceNumber\": \"7\", \"transactionToRefund\":\"49537\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Wrong id",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://localhost:8080/Login/HomePage",
+											"protocol": "http",
+											"host": [
+												"localhost"
+											],
+											"port": "8080",
+											"path": [
+												"Login",
+												"HomePage"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "plain",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain;charset=UTF-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "60"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 01 Jan 2023 08:18:37 GMT"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=60"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										}
+									],
+									"cookie": [],
+									"body": "transaction with id 41741 is ' NOT ' in the transaction list"
+								}
+							]
+						},
+						{
+							"name": "Show the transaction list again",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ServiceNumber\": \"8\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Show the transactions after admin work",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"ServiceNumber\":8\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://localhost:8080/Login/HomePage",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"Login",
+										"HomePage"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin Model",
+			"item": [
+				{
+					"name": "Admin login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "email",
+								"value": "Admin@admin.com",
+								"type": "default"
+							},
+							{
+								"key": "password",
+								"value": "0000",
+								"type": "default"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/Admin/Login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Admin",
+								"Login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Admin Home Page",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Admin/HomePage",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Admin",
+								"HomePage"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Apply over all discount",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/AddDiscount/OverAllDiscount?amountAdded=20",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"AddDiscount",
+								"OverAllDiscount"
+							],
+							"query": [
+								{
+									"key": "amountAdded",
+									"value": "20"
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Apply specific discount",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/AddDiscount/ServiceDiscount?amount=20&serviceName=Donations",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"AddDiscount",
+								"ServiceDiscount"
+							],
+							"query": [
+								{
+									"key": "amount",
+									"value": "20"
+								},
+								{
+									"key": "serviceName",
+									"value": "Donations"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Can not make a discount on a donations",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:8080/AddDiscount/ServiceDiscount?amount=20&serviceName=Donations",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "8080",
+									"path": [
+										"AddDiscount",
+										"ServiceDiscount"
+									],
+									"query": [
+										{
+											"key": "amount",
+											"value": "20"
+										},
+										{
+											"key": "serviceName",
+											"value": "Donations"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain;charset=UTF-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "37"
+								},
+								{
+									"key": "Date",
+									"value": "Sun, 01 Jan 2023 09:36:57 GMT"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=60"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								}
+							],
+							"cookie": [],
+							"body": "This service is a non payment service"
+						}
+					]
+				},
+				{
+					"name": "Show all refunds in admin refund list",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "http://localhost:8080/Admin/showRefundTransactions",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Admin",
+								"showRefundTransactions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show all refund for a spacific user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Admin/showAllUserRefundTransaction?userEmail=mhamed@gmail.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Admin",
+								"showAllUserRefundTransaction"
+							],
+							"query": [
+								{
+									"key": "userEmail",
+									"value": "mhamed@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show all added to wallet transaction for specific user",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Admin/showAllUserAddedToWalletTransaction?userEmail=mhamed@gmail.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Admin",
+								"showAllUserAddedToWalletTransaction"
+							],
+							"query": [
+								{
+									"key": "userEmail",
+									"value": "mhamed@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Show all payment transaction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Admin/showAllUserPaymentTransaction?userEmail=mhamed@gmail.com",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Admin",
+								"showAllUserPaymentTransaction"
+							],
+							"query": [
+								{
+									"key": "userEmail",
+									"value": "mhamed@gmail.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Accept of reject refund by transaction id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/Admin/RefundResponse?transactionId=49537&acceptOrNot=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"Admin",
+								"RefundResponse"
+							],
+							"query": [
+								{
+									"key": "transactionId",
+									"value": "49537"
+								},
+								{
+									"key": "acceptOrNot",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "email",
+			"value": "Admin",
+			"type": "default"
+		},
+		{
+			"key": "password",
+			"value": "0000",
+			"type": "default"
+		},
+		{
+			"key": "amountAdded",
+			"value": "100",
+			"type": "default"
+		},
+		{
+			"key": "amount",
+			"value": "100",
+			"type": "default"
+		},
+		{
+			"key": "serviceName",
+			"value": "Mobile recharge services",
+			"type": "default"
+		}
+	]
+}
